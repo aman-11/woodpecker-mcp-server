@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/aman-11-woodpecker-mcp-server-badge.png)](https://mseep.ai/app/aman-11-woodpecker-mcp-server)
+
 # mcp-pipeline-server
 
 A Model Context Protocol (MCP) server built with mcp-framework.
