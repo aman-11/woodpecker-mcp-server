@@ -1,151 +1,84 @@
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/aman-11-woodpecker-mcp-server-badge.png)](https://mseep.ai/app/aman-11-woodpecker-mcp-server)
+[![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/93f8398c-7a46-4213-8e74-56600b2f7aeb)
 
-# mcp-pipeline-server
+# MCP Pipeline Server
 
-A Model Context Protocol (MCP) server built with mcp-framework.
+## Overview & Goal
+The MCP Pipeline Server automates the analysis and reporting of CI pipeline failures, focusing on Woodpecker CI. Its main goals are:
+- Collect pipeline logs and failure details
+- Analyze failed workflow steps (with retry awareness)
+- Track flaky or recurring failures
+- Store results in Google Sheets for historical analysis
+- Provide prompt-driven diagnosis and reporting for developers
 
-## Quick Start
-
-```bash
-# Install dependencies
-npm install
-
-# Build the project
-npm run build
-
+## Flow Overview
+```mermaid
+flowchart TD
+    A[Woodpecker CI Pipeline] --> B[MCP Pipeline Server]
+    B --> C[Fetch logs & details]
+    C --> D[Analyze failures]
+    D --> E[Check for flaky issues]
+    E --> F[Optional Google Sheet: Failure History]
+    F --> G[Prompt/Report Generation]
 ```
 
-## Project Structure
+**Flow Steps:**
+1. Woodpecker CI triggers a pipeline.
+2. MCP Pipeline Server fetches logs and details.
+3. The server analyzes failures (last attempt only).
+4. Recurring/flaky issues are checked using Google Sheets.
+5. Prompt/Report is generated for developers.
 
-```
-mcp-pipeline-server/
-├── src/
-│   ├── tools/        # MCP Tools
-│   │   └── ExampleTool.ts
-│   └── index.ts      # Server entry point
-├── package.json
-└── tsconfig.json
-```
+## How It Works
+1. **User provides repoId and pipelineNumber** (from Woodpecker CI URLs)
+2. **Server fetches logs and failure details**
+3. **Prompt logic** (see `src/prompts/CiPipelinePrompt.ts`) guides the analysis:
+   - Only the last attempt of each failed step is considered
+   - Checks for recurring issues using historical data from Google Sheets
+   - Generates a report and suggestions
 
-## Adding Components
-
-The project comes with an example tool in `src/tools/ExampleTool.ts`. You can add more tools using the CLI:
-
-```bash
-# Add a new tool
-mcp add tool my-tool
-
-# Example tools you might create:
-mcp add tool data-processor
-mcp add tool api-client
-mcp add tool file-handler
-```
-
-## Tool Development
-
-Example tool structure:
-
-```typescript
-import { MCPTool } from "mcp-framework";
-import { z } from "zod";
-
-interface MyToolInput {
-  message: string;
-}
-
-class MyTool extends MCPTool<MyToolInput> {
-  name = "my_tool";
-  description = "Describes what your tool does";
-
-  schema = {
-    message: {
-      type: z.string(),
-      description: "Description of this input parameter",
-    },
-  };
-
-  async execute(input: MyToolInput) {
-    // Your tool logic here
-    return `Processed: ${input.message}`;
-  }
-}
-
-export default MyTool;
-```
-
-## Publishing to npm
-
-1. Update your package.json:
-   - Ensure `name` is unique and follows npm naming conventions
-   - Set appropriate `version`
-   - Add `description`, `author`, `license`, etc.
-   - Check `bin` points to the correct entry file
-
-2. Build and test locally:
+## Setup Instructions
+1. **Install dependencies**
    ```bash
+   pnpm install
+   # or
+   npm install
+   ```
+2. **Build the project**
+   ```bash
+   pnpm run build
+   # or
    npm run build
-   npm link
-   mcp-pipeline-server  # Test your CLI locally
    ```
-
-3. Login to npm (create account if necessary):
+3. **Start the server**
    ```bash
-   npm login
+   pnpm start
+   # or
+   npm start
    ```
 
-4. Publish your package:
-   ```bash
-   npm publish
-   ```
-
-After publishing, users can add it to their claude desktop client (read below) or run it with npx
-```
-
-## Using with Claude Desktop
-
-### Local Development
-
-Add this configuration to your Claude Desktop config file:
-
-**MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
-
+## Example MCP Client Config
+This is how a client might configure MCP to use this server:
 ```json
 {
-  "mcpServers": {
-    "mcp-pipeline-server": {
-      "command": "node",
-      "args":["/absolute/path/to/mcp-pipeline-server/dist/index.js"]
+  "servers": {
+    "ci-pipeline-tool": {
+      "command": {
+        "type": "local",
+        "command": "node",
+        "args": ["/Users/aayushaman/Provus/mcp-pipeline-server/dist/index.js"],
+        "env": {
+          "WOODPECKER_TOKEN": "<your-woodpecker-token>",
+          "WOODPECKER_SERVER": "https://woodpecker.provus.dev/api",
+          "GOOGLE_SHEET_ID": "<your-google-sheet-id>",
+          "GOOGLE_API_KEY": "<your-google-api-key>"
+        }
+      }
     }
   }
 }
 ```
 
-### After Publishing
-
-Add this configuration to your Claude Desktop config file:
-
-**MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "mcp-pipeline-server": {
-      "command": "npx",
-      "args": ["mcp-pipeline-server"]
-    }
-  }
-}
-```
-
-## Building and Testing
-
-1. Make changes to your tools
-2. Run `npm run build` to compile
-3. The server will automatically load your tools on startup
-
-## Learn More
-
-- [MCP Framework Github](https://github.com/QuantGeekDev/mcp-framework)
-- [MCP Framework Docs](https://mcp-framework.com)
+## Extracting repoId and pipelineNumber
+- **repoId**: Use regex `/\/repos\/([^/]+)/` on Woodpecker CI URLs
+- **pipelineNumber**: Use regex `/\/pipeline\/([^/]+)/`
+  Example: For `https://woodpecker.provus.dev/repos/1/pipeline/100577`, repoId=`1`, pipelineNumber=`100577`

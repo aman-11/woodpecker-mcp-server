@@ -9,7 +9,7 @@ interface WoodpeckerCiPipelineReportGeneratorInput {
 
 class WoodpeckerCiPipelineReportGeneratorTool extends MCPTool<WoodpeckerCiPipelineReportGeneratorInput> {
 	name = "woodpecker-ci-pipeline-report-generator";
-	description = `This tool is to extract all the details for the given pipeline`
+	description = "This tool is used to extract all the different machine logs for the given pipeline"
 
 	schema = pipelineDetailSchema;
 
