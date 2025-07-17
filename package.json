@@ -1,10 +1,11 @@
 {
-  "name": "mcp-pipeline-server",
-  "version": "0.0.1",
-  "description": "mcp-pipeline-server MCP server",
+  "name": "woodpecker-ci-mcp",
+  "version": "0.0.2",
+  "description": "A server to interact with Woodpecker CI.",
+  "author": "aayushaman72@gmail.com",
   "type": "module",
   "bin": {
-    "mcp-pipeline-server": "./dist/index.js"
+    "woodpecker-ci-mcp": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -14,11 +15,25 @@
     "watch": "tsc --watch",
     "start": "node dist/index.js"
   },
+  "keywords": [
+    "mcp",
+    "modelcontextprotocol",
+    "server",
+    "ci",
+    "cd",
+    "woodpecker ci",
+    "claude"
+  ],
+  "license": "ISC",
   "dependencies": {
     "dotenv": "^16.5.0",
     "googleapis": "^150.0.1",
     "js-base64": "^3.7.7",
     "mcp-framework": "^0.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aman-11/woodpecker-mcp-server/"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",

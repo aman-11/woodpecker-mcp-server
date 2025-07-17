@@ -1,15 +1,14 @@
 import {logger, MCPResource, ResourceContent} from "mcp-framework";
 import {google} from "googleapis";
+import { SimpleCache } from "../tools/helpers/cache.js";
+
+const sheetCache = new SimpleCache<any[][][]>(2 * 60 * 1000); // 2 min TTL
 
 class PipelineFailureSheetResource extends MCPResource  {
   uri = "resource://google/spreadsheets/pipeline-failure-details";
   name = "Pipeline failure details from spreadsheet";
   description = "Resource for extracting exisiting pipeline failure details from the multiple spreadsheets";
   mimeType = "application/json";
-
-  private cache: any = null;
-  private lastFetch: number = 0;
-  private TTL = 120000; // 2 minutes in milliseconds
 
   async read(): Promise<ResourceContent[]> {
     const sheetDetails = await this.fetchExistingPipelineFailureDetails();
@@ -23,8 +22,10 @@ class PipelineFailureSheetResource extends MCPResource  {
   }
 
   private async fetchExistingPipelineFailureDetails(): Promise<any[][][]> {
-    if (this.cache && Date.now() - this.lastFetch < this.TTL) {
-      return this.cache;
+    const cacheKey = "pipeline-failure-details";
+    if (sheetCache.has(cacheKey)) {
+      logger.info("Returning cached Google Sheet data for key: " + cacheKey);
+      return sheetCache.get(cacheKey)!;
     }
 
     // Authenticate using the service account
@@ -42,11 +43,10 @@ class PipelineFailureSheetResource extends MCPResource  {
       const sheetPromises = sheetIds.map((spreadsheetId) => sheets.spreadsheets.values.get({ spreadsheetId, range: 'sheet1' }));
 
       const responses = await Promise.all(sheetPromises);
-      this.cache = responses.map(response => response.data.values || []);
-      this.lastFetch = Date.now();
-      // Return the fetched data
-      logger.info("Fetched Google Sheet data successfully: "+ this.cache);
-      return this.cache;
+      const result = responses.map(response => response.data.values || []);
+      sheetCache.set(cacheKey, result);
+      logger.info("Fetched Google Sheet data successfully: "+ result);
+      return result;
     } catch (error) {
       console.error("Error fetching Google Sheet data:", error);
       throw error;

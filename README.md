@@ -7,7 +7,6 @@ The MCP Pipeline Server automates the analysis and reporting of CI pipeline fail
 - Collect pipeline logs and failure details
 - Analyze failed workflow steps (with retry awareness)
 - Track flaky or recurring failures
-- Store results in Google Sheets for historical analysis
 - Provide prompt-driven diagnosis and reporting for developers
 
 ## Flow Overview
@@ -17,7 +16,7 @@ flowchart TD
     B --> C[Fetch logs & details]
     C --> D[Analyze failures]
     D --> E[Check for flaky issues]
-    E --> F[Optional Google Sheet: Failure History]
+    E --> F[Optional: Failure History]
     F --> G[Prompt/Report Generation]
 ```
 
@@ -25,8 +24,7 @@ flowchart TD
 1. Woodpecker CI triggers a pipeline.
 2. MCP Pipeline Server fetches logs and details.
 3. The server analyzes failures (last attempt only).
-4. Recurring/flaky issues are checked using Google Sheets.
-5. Prompt/Report is generated for developers.
+4. Prompt/Report is generated for developers.
 
 ## How It Works
 1. **User provides repoId and pipelineNumber** (from Woodpecker CI URLs)
@@ -68,9 +66,7 @@ This is how a client might configure MCP to use this server:
         "args": ["/Users/aayushaman/Provus/mcp-pipeline-server/dist/index.js"],
         "env": {
           "WOODPECKER_TOKEN": "<your-woodpecker-token>",
-          "WOODPECKER_SERVER": "https://woodpecker.provus.dev/api",
-          "GOOGLE_SHEET_ID": "<your-google-sheet-id>",
-          "GOOGLE_API_KEY": "<your-google-api-key>"
+          "WOODPECKER_SERVER": "https://woodpecker.orgName.dev/api"
         }
       }
     }
@@ -81,4 +77,4 @@ This is how a client might configure MCP to use this server:
 ## Extracting repoId and pipelineNumber
 - **repoId**: Use regex `/\/repos\/([^/]+)/` on Woodpecker CI URLs
 - **pipelineNumber**: Use regex `/\/pipeline\/([^/]+)/`
-  Example: For `https://woodpecker.provus.dev/repos/1/pipeline/100577`, repoId=`1`, pipelineNumber=`100577`
+  Example: For `https://woodpecker.orgName.dev/repos/1/pipeline/1`, repoId=`1`, pipelineNumber=`1`

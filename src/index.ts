@@ -1,16 +1,20 @@
 import { MCPServer } from "mcp-framework";
 import dotenv from "dotenv";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 dotenv.config();
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 class MyMCPServer {
     private server: MCPServer;
 
     constructor() {
         this.server = new MCPServer({
-            name: "my-mcp-server",
+            name: "woodpecker-ci-mcp",
             version: "1.0.0",
-            transport: { type: "stdio" }
+            transport: { type: "stdio" },
+            basePath: __dirname
         });
 
         // Handle process signals
