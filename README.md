@@ -61,10 +61,13 @@ This is how a client might configure MCP to use this server:
   "servers": {
     "ci-pipeline-tool": {
       "command": {
-        "type": "local",
-        "command": "node",
-        "args": ["/Users/aayushaman/Provus/mcp-pipeline-server/dist/index.js"],
-        "env": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+           "-y",
+           "woodpecker-ci-mcp@0.0.2"
+         ], 
+         "env": {
           "WOODPECKER_TOKEN": "<your-woodpecker-token>",
           "WOODPECKER_SERVER": "https://woodpecker.orgName.dev/api"
         }
