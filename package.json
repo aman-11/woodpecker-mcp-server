@@ -11,6 +11,8 @@
     "dist"
   ],
   "scripts": {
+    "debug": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "kill-debug": "kill -9 $(lsof -ti:6277) && kill -9 $(lsof -ti:6274)",
     "build": "tsc && mcp-build",
     "watch": "tsc --watch",
     "start": "node dist/index.js"
