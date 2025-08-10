@@ -1,6 +1,6 @@
 {
   "name": "woodpecker-ci-mcp",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A server to interact with Woodpecker CI.",
   "author": "aayushaman72@gmail.com",
   "type": "module",
